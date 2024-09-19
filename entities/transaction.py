@@ -4,6 +4,7 @@ import typing
 from dataclasses import dataclass, field
 import uuid
 from decimal import Decimal
+from multiprocessing.managers import public_methods
 
 from entities.base import now
 
@@ -14,7 +15,6 @@ class TransactionEntity:
         INITIATED = 'Initiated'
         PROCESSING = 'Processing'
         COMPLETED = 'Completed'
-
     user_id: uuid.UUID
     currency_id: uuid.UUID
     count: int
