@@ -5,5 +5,5 @@ until nc -z "${RABBIT_HOST:-rabbit}" "${RABBIT_PORT:-5672}"; do
   sleep 2
 done
 
-exec nameko run --config config.yml core.controller --backdoor-port 3000
+exec nameko run --config config.yml api --backdoor-port 3000
 
