@@ -4,7 +4,6 @@ import typing
 from dataclasses import dataclass, field
 import uuid
 from decimal import Decimal
-from multiprocessing.managers import public_methods
 
 from entities.base import now
 

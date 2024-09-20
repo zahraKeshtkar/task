@@ -4,9 +4,6 @@ from events.base import Event
 
 @dataclasses.dataclass
 class InitiateTransaction(Event):
-    """
-    This event should be raised whenever a transaction is initiated!
-    """
     transaction_id: str
     amount: float
 

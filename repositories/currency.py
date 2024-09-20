@@ -8,3 +8,6 @@ class CurrencyRepository:
         return self._session.query(CurrencyEntity).filter(
             CurrencyEntity.id == currency_id
         ).one_or_none()
+
+    def list_currencies(self):
+        return self._session.query(CurrencyEntity).all()

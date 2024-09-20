@@ -1,9 +1,10 @@
-import re
 import uuid
 
 from sqlalchemy import DateTime, Column, TypeDecorator, MetaData
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.declarative import declarative_base
+
+from entities.base import now
 
 meta = MetaData(
     naming_convention={

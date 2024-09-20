@@ -46,3 +46,14 @@ class TransactionRepository:
             {TransactionEntity.state: new_state},
             synchronize_session='fetch'
         )
+
+    def update_transactions_into_from_pending_to_initiate(self):
+        with self:
+            self._session.query(
+                TransactionEntity,
+            ).filter(
+                TransactionEntity.state == TransactionEntity.TransactionState.PROCESSING,
+            ).update(
+                {TransactionEntity.state: TransactionEntity.TransactionState.INITIATED},
+                synchronize_session='fetch',
+            )

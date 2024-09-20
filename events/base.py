@@ -8,7 +8,7 @@ class Event:
     def __init__(self, name: str):
         self.name = name
 
-    def dispatch(self, sender: Callable[[str, Dict], None], access_info: Dict):
+    def publish(self, sender: Callable[[str, Dict], None], access_info: Dict):
         try:
             if dataclasses.is_dataclass(self):
                 event_data = {

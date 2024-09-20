@@ -2,9 +2,10 @@ import logging
 import uuid
 from decimal import Decimal
 from sqlite3 import IntegrityError
+from events.transaction import InitiateTransaction
 from entities.transaction import TransactionEntity
-from exchange.base import get_exchange_providers
-from transaction import TransactionRepository
+from exchange.base import get_sorted_services
+from repositories import transaction as transaction_repository
 from currency import CurrencyRepository
 
 logger = logging.getLogger(__name__)
@@ -35,7 +36,7 @@ def compute_total_cost(unit_price, quantity):
     return float(unit_price) * quantity
 
 class TransactionManager:
-    def __init__(self, user_info, currency_repo: CurrencyRepository, transaction_repo: TransactionRepository, event_publisher):
+    def __init__(self, user_info, currency_repo: CurrencyRepository, transaction_repo: transaction_repository, event_publisher):
         self.user_info = user_info
         self.currency_repo = currency_repo
         self.transaction_repo = transaction_repo
@@ -45,7 +46,7 @@ class TransactionManager:
         currency_id = transaction_details.get('currency_id')
         quantity = transaction_details.get('count')
 
-        currency = self.currency_repo.find_currency_by_id(currency_id)
+        currency = self.currency_repo.get_currency_with_id(currency_id)
         if not currency:
             raise ValueError("Invalid currency")
 
@@ -91,9 +92,10 @@ class TransactionManager:
                 raise
 
     def _initiate_settlement(self):
-        events.SettlementTriggered().publish(
-            event_dispatcher=self.event_publisher,
-            user_info=self.user_info
+        InitiateTransaction.publish(
+            self.event_publisher,
+            sender=self.event_publisher,
+            access_info=self.user_info
         )
 
     def settle_pending_transactions(self):
@@ -102,7 +104,7 @@ class TransactionManager:
             logger.warning(f"Settlement not triggered - total value = {total_transactions_value}")
             return
 
-        exchange_services = get_exchange_providers()
+        exchange_services = get_sorted_services()
 
         with self.transaction_repo as repo:
             try:
@@ -132,3 +134,6 @@ class TransactionManager:
             except Exception as error:
                 logger.error(f"Error during transaction settlement: {error}")
                 raise
+
+    def reset_stuck_transactions(self):
+        self.transaction_repo.update_transactions_into_from_pending_to_initiate()
